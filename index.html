@@ -25,7 +25,8 @@ nav ul a{color:var(--text-dim);text-decoration:none;font-size:.85rem;letter-spac
 nav ul a:hover{color:var(--accent)}
 
 .hero{min-height:100vh;display:flex;align-items:center;padding:8rem 3rem 4rem;position:relative}
-.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;max-width:1200px;margin:0 auto;width:100%}
+#canvas-container{position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:-1;pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;max-width:1200px;margin:0 auto;width:100%;position:relative;z-index:1}
 .hero-text h1{font-family:'Syne',sans-serif;font-size:4rem;font-weight:800;line-height:1.05;letter-spacing:-0.03em;margin-bottom:1.5rem}
 .hero-text h1 .line2{color:var(--accent)}
 .hero-text .tagline{font-size:1.1rem;color:var(--text-dim);max-width:480px;margin-bottom:2rem}
@@ -124,6 +125,7 @@ footer{text-align:center;padding:2rem;border-top:1px solid var(--border);color:v
 </style>
 </head>
 <body>
+<div id="canvas-container"></div>
 
 <nav>
   <div class="logo">R<span>.</span>Dhakshin</div>
@@ -149,7 +151,7 @@ footer{text-align:center;padding:2rem;border-top:1px solid var(--border);color:v
       </div>
     </div>
     <div class="hero-image">
-      <div class="photo-wrapper">
+      <div class="photo-wrapper" data-tilt data-tilt-max="15" data-tilt-speed="400" data-tilt-glare data-tilt-max-glare="0.2">
         <img src="profile.jpg" alt="Rahul Dhakshin">
       </div>
       <div class="float-badge b1"><span class="dot"></span>Open to Roles</div>
@@ -205,11 +207,27 @@ footer{text-align:center;padding:2rem;border-top:1px solid var(--border);color:v
       </div>
     </div>
     <div class="project-card">
-      <div class="tag">Full Stack</div>
-      <h3>Full Stack Web Development Projects</h3>
-      <p>Built responsive web apps using React.js, HTML5, CSS3 and Bootstrap with clean UI/UX design principles. Developed back-end services using Django, REST APIs and relational databases (MySQL/PostgreSQL).</p>
+      <div class="tag">Mobile App · Social</div>
+      <h3>SPARK</h3>
+      <p>A proprietary Expo React Native application designed for spontaneous social meetups. Features real-time location-based "sparks" for friends to connect instantly. Built with a robust TypeScript foundation, custom UI/UX design system, and backend database integrations for seamless interaction.</p>
       <div class="tech-stack">
-        <span>React</span><span>Django</span><span>Node.js</span><span>REST APIs</span><span>PostgreSQL</span>
+        <span>TypeScript</span><span>React Native</span><span>Expo</span><span>PLpgSQL</span>
+      </div>
+    </div>
+    <div class="project-card">
+      <div class="tag">AI Assistant</div>
+      <h3>Luhar-ai</h3>
+      <p>A grounded, Claude-inspired AI assistant built entirely with open-source tools. Features persistent SQLite memory, live DuckDuckGo web search, and custom safety guards against hallucination and sycophancy. Integrates flawlessly with Ollama, Groq, and HuggingFace APIs via a Streamlit interface.</p>
+      <div class="tech-stack">
+        <span>Python</span><span>Streamlit</span><span>Ollama/Groq</span><span>SQLite</span>
+      </div>
+    </div>
+    <div class="project-card">
+      <div class="tag">Finance · Full Stack ML</div>
+      <h3>stocksense-ai</h3>
+      <p>An end-to-end Indian stock market analytics platform. Features a resumable 10-year OHLCV data pipeline, advanced technical indicator engineering, and Random Forest/Gradient Boosting prediction models. Served via FastAPI to a React/Vite dark-mode trading terminal with Recharts and TailwindCSS.</p>
+      <div class="tech-stack">
+        <span>FastAPI</span><span>React.js</span><span>Scikit-learn</span><span>yfinance</span>
       </div>
     </div>
   </div>
@@ -290,6 +308,157 @@ const obs = new IntersectionObserver((entries) => {
   entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible') });
 }, {threshold: 0.1});
 document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+<script>
+// 3D Animation Setup (Three.js)
+const canvasContainer = document.getElementById('canvas-container');
+if (canvasContainer) {
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, canvasContainer.clientWidth / canvasContainer.clientHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  
+  renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  canvasContainer.appendChild(renderer.domElement);
+
+  // Particles
+  const particlesGeometry = new THREE.BufferGeometry();
+  const particlesCount = 1000;
+  const posArray = new Float32Array(particlesCount * 3);
+  
+  for(let i = 0; i < particlesCount * 3; i++) {
+    posArray[i] = (Math.random() - 0.5) * 15;
+  }
+  
+  particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+  
+  const particleMaterial = new THREE.PointsMaterial({
+    size: 0.03,
+    color: 0xc8f542, // var(--accent)
+    transparent: true,
+    opacity: 0.6,
+    blending: THREE.AdditiveBlending
+  });
+  
+  const particlesMesh = new THREE.Points(particlesGeometry, particleMaterial);
+  scene.add(particlesMesh);
+
+  // A 3D Wireframe Shape
+  const shapeGroup = new THREE.Group();
+  const shapeGeometry1 = new THREE.IcosahedronGeometry(2.5, 1);
+  const shapeMaterial1 = new THREE.MeshBasicMaterial({
+    color: 0x7df5c4, // var(--accent2)
+    wireframe: true,
+    transparent: true,
+    opacity: 0.1
+  });
+  const shapeMesh1 = new THREE.Mesh(shapeGeometry1, shapeMaterial1);
+  
+  const shapeGeometry2 = new THREE.IcosahedronGeometry(2, 2);
+  const shapeMaterial2 = new THREE.MeshBasicMaterial({
+    color: 0xc8f542,
+    wireframe: true,
+    transparent: true,
+    opacity: 0.05
+  });
+  const shapeMesh2 = new THREE.Mesh(shapeGeometry2, shapeMaterial2);
+  
+  shapeGroup.add(shapeMesh1);
+  shapeGroup.add(shapeMesh2);
+  
+  if(window.innerWidth > 900) {
+    shapeGroup.position.set(3, 0, -3);
+  } else {
+    shapeGroup.position.set(0, 0, -5);
+  }
+  scene.add(shapeGroup);
+
+  camera.position.z = 4;
+
+  let mouseX = 0;
+  let mouseY = 0;
+  let targetX = 0;
+  let targetY = 0;
+  const windowHalfX = window.innerWidth / 2;
+  const windowHalfY = window.innerHeight / 2;
+
+  document.addEventListener('mousemove', (event) => {
+    mouseX = (event.clientX - windowHalfX);
+    mouseY = (event.clientY - windowHalfY);
+  });
+
+  window.addEventListener('resize', () => {
+    if(canvasContainer) {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+  });
+
+  // Adding more shapes for scrolling down
+  const extraShapes = [];
+  for(let i=0; i<15; i++) {
+    const geo = new THREE.IcosahedronGeometry(Math.random() * 1.5 + 0.5, 1);
+    const mat = new THREE.MeshBasicMaterial({
+      color: i % 2 === 0 ? 0x7df5c4 : 0xc8f542,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.08
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set((Math.random() - 0.5) * 15, -Math.random() * 40 - 5, (Math.random() - 0.5) * 10 - 5);
+    scene.add(mesh);
+    extraShapes.push(mesh);
+  }
+
+  let scrollY = window.scrollY;
+  window.addEventListener('scroll', () => {
+    scrollY = window.scrollY;
+  });
+
+  const clock = new THREE.Clock();
+
+  function animate() {
+    requestAnimationFrame(animate);
+    const elapsedTime = clock.getElapsedTime();
+
+    targetX = mouseX * 0.001;
+    targetY = mouseY * 0.001;
+
+    particlesMesh.rotation.y = -0.05 * elapsedTime;
+    particlesMesh.rotation.x = -0.02 * elapsedTime;
+    
+    particlesMesh.rotation.y += 0.05 * (targetX - particlesMesh.rotation.y);
+    particlesMesh.rotation.x += 0.05 * (targetY - particlesMesh.rotation.x);
+
+    shapeGroup.rotation.x += 0.002;
+    shapeGroup.rotation.y += 0.003;
+    shapeGroup.rotation.z += 0.001;
+    
+    extraShapes.forEach((s, idx) => {
+      s.rotation.x += 0.001 * (idx%3 + 1);
+      s.rotation.y += 0.002 * (idx%2 + 1);
+    });
+
+    camera.position.y = -scrollY * 0.006; // Scroll parallax effect
+    
+    renderer.render(scene, camera);
+  }
+
+  animate();
+}
+
+// Vanilla Tilt Initialization
+VanillaTilt.init(document.querySelectorAll(".skill-card, .project-card, .stat-card, .edu-card"), {
+  max: 5,
+  speed: 400,
+  glare: true,
+  "max-glare": 0.1,
+  scale: 1.02
+});
 </script>
 </body>
 </html>
